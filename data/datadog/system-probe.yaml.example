@@ -1,0 +1,85 @@
+
+
+##################################
+## System Probe Configuration ##
+##################################
+
+## @param system_probe_config - custom object - optional
+## Enter specific configurations for your System Probe data collection.
+## Uncomment this parameter and the one below to enable them.
+#
+# system_probe_config:
+  ## @param sysprobe_socket - string - optional - default: /opt/datadog-agent/run/sysprobe.sock
+  ## The full path to the location of the unix socket where system probes are accessed.
+  #
+  # sysprobe_socket: /opt/datadog-agent/run/sysprobe.sock
+
+  ## @param log_file - string - optional - default: /var/log/datadog/system-probe.log
+  ## The full path to the file where system-probe logs are written.
+  #
+  # log_file: /var/log/datadog/system-probe.log
+
+########################################
+## System Probe Network Configuration ##
+########################################
+
+# network_config:
+  ## @param enabled - boolean - optional - default: false
+  ## Set to true to enable the Network Module of the System Probe
+  #
+  # enabled: false
+
+
+
+##########################################
+## Security Agent Runtime Configuration ##
+##                                      ##
+## Settings to sent logs to Datadog are ##
+## fetched from section `logs_config`   ##
+##########################################
+
+# runtime_security_config:
+  ## @param enabled - boolean - optional - default: false
+  ## Set to true to enable the Security Runtime Module.
+  #
+  # enabled: false
+
+  ## @param fim_enabled - boolean - optional - default: false
+  ## Set to true to enable the File Integrity Monitoring feature.
+  # fim_enabled: false
+
+  ## @param socket - string - optional - default: /opt/datadog-agent/run/runtime-security.sock
+  ## The full path to the location of the unix socket where security runtime module is accessed.
+  #
+  # socket: /opt/datadog-agent/run/runtime-security.sock
+
+  ## @param policies - custom object - optional
+  ## Policy files
+  # policies:
+
+    ## @param dir - string - default: /etc/datadog-agent/runtime-security.d
+    ## Path from where the policy files will be loaded
+    #
+    # dir: /etc/datadog-agent/runtime-security.d
+
+  ## @param syscall_monitor - custom object - optional
+  ## Syscall monitoring
+  #
+  # syscall_monitor:
+
+    ## @param enabled - boolean - optional - default: false
+    ## Set to true to enable the Syscall monitoring.
+    #
+    #  enabled: false
+
+  ## @param custom_sensitive_words - list of strings - optional
+  ## Define your own list of sensitive data to be merged with the default one.
+  ## Read more on Datadog documentation:
+  ## https://docs.datadoghq.com/graphing/infrastructure/process/#process-arguments-scrubbing
+  #
+  # custom_sensitive_words:
+  #   - 'personal_key'
+  #   - '*token'
+  #   - 'sql*'
+  #   - '*pass*d*'
+

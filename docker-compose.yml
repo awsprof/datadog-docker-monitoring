@@ -1,0 +1,120 @@
+version: "3.9"
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - ./data/prometheus/config:/etc/prometheus/
+      - ./data/prometheus/data:/prometheus
+    expose:
+      - 9090
+    ports:
+      - 9090:9090
+
+  datadogagent:
+    image: gcr.io/datadoghq/agent:latest
+    container_name: datadog
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/datadog:/etc/datadog-agent/
+      # - /proc/:/host/proc/:ro
+      # - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
+    expose:
+      - 8125
+      - 8126
+      - 5000
+      - 5001
+      - 6062
+      - 38879
+    ports:
+      - 8125:8125/udp
+      - 8126:8126
+      - 5000:5000
+      - 5001:5001
+      - 6062:6062
+      - 38879:38879
+    environment:
+      - DD_API_KEY=<DD_API_KEY>
+      - DD_APM_ENABLED=true
+      - DD_LOGS_ENABLED=true
+      - DD_PROCESS_AGENT_ENABLED=true
+      - DD_HOSTNAME=<YOURHOST>
+      - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
+
+  dev-consul-server:
+    image: consul:latest
+    container_name: dev-consul-server
+    restart: unless-stopped
+    ports:
+      - "8300:8300"
+      - "8400:8400"
+      - "8500:8500"
+      - "8600:8600"
+      - "8600:8600/udp"
+    volumes:
+      - ./consul.d:/etc/consul.d/:rw
+    environment:
+      - CONSUL_BOOTSTRAP_EXPECT=3
+      - CONSUL_CLIENT_LAN_ADDRESS=0.0.0.0
+      - CONSUL_DISABLE_KEYRING_FILE=true
+      - CONSUL_RETRY_JOIN=dev-consul-server
+    command:
+      [
+        "consul",
+        "agent",
+        "-bootstrap-expect=1",
+        "-server",
+        "-data-dir=/consul/data",
+        "-config-dir=/etc/consul.d",
+        '-bind={{ GetInterfaceIP "eth0" }}',
+        "-client=0.0.0.0",
+        "-ui",
+      ]
+
+  alert-manager:
+    image: prom/alertmanager:latest
+    container_name: alert-manager
+    ports:
+      - 9093:9093
+    volumes:
+      - ./data/alertmanager/alertmanager.yml:/alertmanager.yml
+    command: ["--config.file=/alertmanager.yml"]
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    expose:
+      - 9100
+    ports:
+      - 9100:9100
+
+  cadvisor:
+    image: google/cadvisor:latest
+    container_name: cadvisor
+    restart: unless-stopped
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    volumes:
+      - ./data/grafana:/var/lib/grafana:rw
+    expose:
+      - 3000
+    ports:
+      - 3000:3000
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=password
+      - GF_USERS_ALLOW_SIGN_UP=false
